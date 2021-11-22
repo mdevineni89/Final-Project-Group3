@@ -19,7 +19,7 @@ def split_data(inpath, target_name, test_size):
     x=df.drop(target_name,axis=1)
     # set a random seed for the data, so that we could get the same train and test set
     random.seed(12345)
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=1, stratify=y)
 
     training = pd.concat([X_train, y_train], axis=1)
     testing = pd.concat([X_test, y_test], axis=1)
@@ -105,11 +105,11 @@ if __name__ == "__main__":
     PreProcessing(df_new).format_age_disbursal()
 
     # Traditional Credit Scoring
-    PreProcessing(df_new).bin_cutpoint(target_name, ["disbursed_amount", "asset_cost", "ltv", "PERFORM_CNS.SCORE", "PRI.NO.OF.ACCTS",\
-                                                     "PRI.ACTIVE.ACCTS", "PRI.OVERDUE.ACCTS", "PRI.CURRENT.BALANCE", "PRI.SANCTIONED.AMOUNT",\
-                                                     "PRI.DISBURSED.AMOUNT", "PRIMARY.INSTAL.AMT", "NEW.ACCTS.IN.LAST.SIX.MONTHS", \
-                                                     "DELINQUENT.ACCTS.IN.LAST.SIX.MONTHS", "AVERAGE.ACCT.AGE", "CREDIT.HISTORY.LENGTH",\
-                                                     "Age", "Disbursal_months"])
+    # PreProcessing(df_new).bin_cutpoint(target_name, ["disbursed_amount", "asset_cost", "ltv", "PERFORM_CNS.SCORE", "PRI.NO.OF.ACCTS",\
+    #                                                  "PRI.ACTIVE.ACCTS", "PRI.OVERDUE.ACCTS", "PRI.CURRENT.BALANCE", "PRI.SANCTIONED.AMOUNT",\
+    #                                                  "PRI.DISBURSED.AMOUNT", "PRIMARY.INSTAL.AMT", "NEW.ACCTS.IN.LAST.SIX.MONTHS", \
+    #                                                  "DELINQUENT.ACCTS.IN.LAST.SIX.MONTHS", "AVERAGE.ACCT.AGE", "CREDIT.HISTORY.LENGTH",\
+    #                                                  "Age", "Disbursal_months"])
 
     PreProcessing(df_new).save_csv(outpath_train)
 
