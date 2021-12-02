@@ -1,15 +1,17 @@
 import pandas as pd
 import numpy as np
+import seaborn as sns
+from scipy import stats
+import matplotlib.pyplot as plt
 import os
 import re
-import scorecardpy as sc
 from sklearn.model_selection import train_test_split
 import random
 
-'''
-FINISH FOR NOW
-UNSOLVED: train/test config, warning
-'''
+import scorecardpy as sc
+
+# split train into train data and test data
+# os.chdir(r'D:\GWU\Aihan\DATS 6103 Data Mining\Final Project\Code')
 
 
 def split_data(inpath, target_name, test_size):
@@ -76,8 +78,32 @@ class PreProcessing():
 
             self.df[colname] = pd.cut(self.df[colname], list_break)
 
+    def delet_columns(self, delete_list):
+        df_new = self.df.drop(delete_list, axis=1)
+        return df_new
+
     def save_csv(self, outpath):
         self.df.to_csv(outpath)
+
+
+
+
+'''
+# format the date variable
+training['Date.of.Birth'] = pd.to_datetime(training['Date.of.Birth']).dt.strftime('%d/%m/%Y')
+training['DisbursalDate'] = pd.to_datetime(training['DisbursalDate'], format = "%d-%m-%y",infer_datetime_format=True)
+# covert Date of birth to age
+
+
+def age(born):
+    born_date = datetime.strptime(born, "%d/%m/%Y").date()
+    today = datetime.now()
+    return relativedelta(today, born_date).years
+
+training['Age'] = training['Date.of.Birth'].apply(age)
+training['Disbursal_months'] = ((pd.Timestamp('now') - training['DisbursalDate'])/np.timedelta64(1,'M')).astype(int)
+
+'''
 
 
 if __name__ == "__main__":
@@ -87,9 +113,8 @@ if __name__ == "__main__":
     outpath_test = r'lt-vehicle-loan-default-prediction/final_test.csv'
     training, testing = split_data(inpath, target_name, test_size=0.3)
     # checking the format of each variable
-    # print(training.dtypes)
+    print(training.dtypes)
 
-    # delete missing values
     print(PreProcessing(training).Title)
     df_new = PreProcessing(training).Null_value()
 
@@ -97,12 +122,15 @@ if __name__ == "__main__":
 
     PreProcessing(df_new).comvert_format('AVERAGE.ACCT.AGE')
     PreProcessing(df_new).comvert_format('CREDIT.HISTORY.LENGTH')
+    # comvert_format(training, 'AVERAGE.ACCT.AGE')
+    # comvert_format(training, 'CREDIT.HISTORY.LENGTH')
 
     PreProcessing(df_new).convert_cate_to_num(['Employment.Type', 'PERFORM_CNS.SCORE.DESCRIPTION'])
 
     # Create Age and Disbursal_months
     PreProcessing(df_new).format_date(['Date.of.Birth', 'DisbursalDate'])
     PreProcessing(df_new).format_age_disbursal()
+    df_all = PreProcessing(df_new).delet_columns(['UniqueID', 'Date.of.Birth', 'DisbursalDate', 'PERFORM_CNS.SCORE.DESCRIPTION', 'Employee_code_ID', 'Current_pincode_ID'])
 
     # Traditional Credit Scoring
     # PreProcessing(df_new).bin_cutpoint(target_name, ["disbursed_amount", "asset_cost", "ltv", "PERFORM_CNS.SCORE", "PRI.NO.OF.ACCTS",\
@@ -111,7 +139,69 @@ if __name__ == "__main__":
     #                                                  "DELINQUENT.ACCTS.IN.LAST.SIX.MONTHS", "AVERAGE.ACCT.AGE", "CREDIT.HISTORY.LENGTH",\
     #                                                  "Age", "Disbursal_months"])
 
-    PreProcessing(df_new).save_csv(outpath_train)
+    PreProcessing(df_all).save_csv(outpath_train)
 
 
 
+'''
+# FINISH FOR NOW
+'''
+
+'''
+
+# merge_df.to_csv(r'lt-vehicle-loan-default-prediction/merge.csv')
+
+merge_df = pd.read_csv(r'lt-vehicle-loan-default-prediction/merge.csv')
+print(merge_df.dtypes)
+
+# fig, axes = plt.subplots(7, 2, figsize=(18, 10))
+#
+# fig.suptitle('Pokemon Stats by Generation')
+#
+# sns.boxplot(ax=axes[0, 0], data=merge_df, x='disbursed_amount')
+# sns.boxplot(ax=axes[0, 1], data=merge_df, x='asset_cost')
+# sns.boxplot(ax=axes[1, 0], data=merge_df, x='ltv')
+# sns.boxplot(ax=axes[1, 1], data=merge_df, x='PERFORM_CNS.SCORE')
+# sns.boxplot(ax=axes[2, 1], data=merge_df, x='PRI.CURRENT.BALANCE')
+# sns.boxplot(ax=axes[3, 0], data=merge_df, x='PRI.SANCTIONED.AMOUNT')
+# sns.boxplot(ax=axes[3, 1], data=merge_df, x='PRI.DISBURSED.AMOUNT')
+# sns.boxplot(ax=axes[4, 0], data=merge_df, x='SEC.CURRENT.BALANCE')
+# sns.boxplot(ax=axes[4, 1], data=merge_df, x='SEC.SANCTIONED.AMOUNT')
+# sns.boxplot(ax=axes[5, 0], data=merge_df, x='SEC.DISBURSED.AMOUNT')
+# sns.boxplot(ax=axes[5, 1], data=merge_df, x='PRIMARY.INSTAL.AMT')
+# sns.boxplot(ax=axes[6, 0], data=merge_df, x='SEC.INSTAL.AMT')
+# sns.boxplot(ax=axes[6, 1], data=merge_df, x='AVERAGE.ACCT.AGE')
+# plt.show()
+
+
+
+# Continuous variable vs categorical variables
+score_ranking = ["A-Very Low Risk", "B-Very Low Risk", "C-Very Low Risk", "D-Very Low Risk", \
+                 "E-Low Risk", "F-Low Risk", "G-Low Risk",  "H-Medium Risk", "I-Medium Risk", "J-High Risk", "K-High Risk",\
+                 "L-Very High Risk", "M-Very High Risk", "No Bureau History Available", "Not Scored: No Activity seen on the customer (Inactive)", \
+                 "Not Scored: Not Enough Info available on the customer", "Not Scored: Sufficient History Not Available", "Not Scored: Only a Guarantor",\
+                "Not Scored: No Updates available in last 36 months1", "Not Scored: More than 50 active Accounts found"]
+
+
+
+# sns.boxplot(x="PERFORM_CNS.SCORE.DESCRIPTION", y="PERFORM_CNS.SCORE", color="b", data=df_subset)
+# plt.show()
+
+def df_boxplot(df, xstr, ystr):
+    sns.boxplot(x=xstr, y=ystr, palette=sns.color_palette(), data=df)
+    plt.show()
+
+
+# continuous variable vs target
+df_subset = merge_df[merge_df['PERFORM_CNS.SCORE.DESCRIPTION'] < 13]
+df_boxplot(df_subset, "PERFORM_CNS.SCORE.DESCRIPTION", "PERFORM_CNS.SCORE")
+
+
+#continuous variable vs target
+df_boxplot(merge_df, "loan_default", y="PERFORM_CNS.SCORE")
+
+
+# t-test
+# stats.ttest_ind(a, b, equal_var = False)
+
+'''
