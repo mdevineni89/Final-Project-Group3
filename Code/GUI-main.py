@@ -2950,6 +2950,123 @@ class LogisticReg(QMainWindow):
         self.accuracy_svm = accuracy_score(y_test, y_pred_svm) * 100
         self.txtAccuracy_svm.setText(str(self.accuracy_svm))
 
+
+class TargetDistribution(QMainWindow):
+    #::---------------------------------------------------------
+    # This class crates a canvas with a plot to show the distribution
+    # from each feature in the dataset with the target variables
+    # methods
+    #    _init_
+    #   update
+    #::---------------------------------------------------------
+    send_fig = pyqtSignal(str)
+
+    def __init__(self):
+        #::--------------------------------------------------------
+        # Crate a canvas with the layout to draw a dotplot
+        # The layout sets all the elements and manage the changes
+        # made on the canvas
+        #::--------------------------------------------------------
+        super(TargetDistribution, self).__init__()
+        self.Title = "EDA: Variable Distribution"
+        self.main_widget = QWidget(self)
+
+        self.setWindowTitle(self.Title)
+        self.setStyleSheet(font_size_window)
+
+        self.fig = Figure()
+        self.ax = self.fig.add_subplot(111)
+        self.axes = [self.ax]
+        self.canvas = FigureCanvas(self.fig)
+
+        self.canvas.setSizePolicy(QSizePolicy.Expanding,
+                                  QSizePolicy.Expanding)
+
+        self.canvas.updateGeometry()
+
+        self.dropdown1 = QComboBox()
+        self.featuresList = important_features.copy()
+        self.dropdown1.addItems(self.featuresList)
+
+        self.dropdown1.currentIndexChanged.connect(self.update)
+        self.label = QLabel("A plot:")
+
+        self.layout = QGridLayout(self.main_widget)
+        self.layout.addWidget(QLabel("Select Features:"), 0, 0, 1, 1)
+        self.layout.addWidget(self.dropdown1, 0, 1, 1, 1)
+
+
+        self.filter_data = QWidget(self)
+        self.filter_data.layout = QGridLayout(self.filter_data)
+        self.filter_data.layout.addWidget(QLabel("Choose Data Filter:"), 0, 0, 1, 1)
+
+        self.filter_radio_button = QRadioButton("All Data")
+        self.filter_radio_button.setChecked(True)
+        self.filter_radio_button.filter = "All_Data"
+        self.set_Filter = "All_Data"
+        self.filter_radio_button.toggled.connect(self.onFilterClicked)
+        self.filter_data.layout.addWidget(self.filter_radio_button, 0, 1, 1, 1)
+
+        self.filter_radio_button = QRadioButton("Loan Default: Yes")
+        self.filter_radio_button.filter = 1
+        self.filter_radio_button.toggled.connect(self.onFilterClicked)
+        self.filter_data.layout.addWidget(self.filter_radio_button, 0, 2, 1, 1)
+
+        self.filter_radio_button = QRadioButton("Loan Default: No")
+        self.filter_radio_button.filter = 0
+        self.filter_radio_button.toggled.connect(self.onFilterClicked)
+        self.filter_data.layout.addWidget(self.filter_radio_button, 0, 3, 1, 1)
+
+        self.btnCreateGraph = QPushButton("Show Distribution")
+        self.btnCreateGraph.clicked.connect(self.update)
+
+        self.groupBox1 = QGroupBox('Distribution')
+        self.groupBox1Layout = QVBoxLayout()
+        self.groupBox1.setLayout(self.groupBox1Layout)
+        self.groupBox1Layout.addWidget(self.canvas)
+
+        self.layout.addWidget(self.filter_data, 1, 0, 2, 2)
+        self.layout.addWidget(self.btnCreateGraph, 0, 3, 2, 2)
+        self.layout.addWidget(self.groupBox1, 3, 0, 5, 5)
+
+        self.setCentralWidget(self.main_widget)
+        self.resize(1200, 700)
+        self.show()
+
+
+    def onFilterClicked(self):
+        self.filter_radio_button = self.sender()
+        if self.filter_radio_button.isChecked():
+            self.set_Filter = self.filter_radio_button.filter
+            self.update()
+
+    def update(self):
+        #::--------------------------------------------------------
+        # This method executes each time a change is made on the canvas
+        # containing the elements of the graph
+        # The purpose of the method es to draw a dot graph using the
+        # score of happiness and the feature chosen the canvas
+        #::--------------------------------------------------------
+        colors = ["b", "r", "g", "y", "k", "c"]
+        self.ax.clear()
+        cat1 = self.dropdown1.currentText()
+        if (self.set_Filter == 1 or self.set_Filter == 0):
+            self.filtered_data = df.copy()
+            self.filtered_data = self.filtered_data[self.filtered_data["loan_default"] == self.set_Filter]
+        else:
+            self.filtered_data = df.copy()
+
+        self.ax.hist(self.filtered_data[cat1], bins=50, facecolor='blue', alpha=0.5)
+        self.ax.set_title(cat1)
+        self.ax.set_xlabel(cat1)
+        self.ax.set_ylabel("Count")
+        self.ax.grid(True)
+        self.fig.tight_layout()
+        self.fig.canvas.draw_idle()
+        del cat1
+        del self.filtered_data
+
+
 class CorrelationPlot(QMainWindow):
     #;:-----------------------------------------------------------------------
     # This class creates a canvas to draw a correlation plot
@@ -3363,6 +3480,69 @@ class CorrelationPlot(QMainWindow):
         self.fig.tight_layout()
         self.fig.canvas.draw_idle()
 
+class TargetRelationship(QMainWindow):
+    #::---------------------------------------------------------
+    # This class crates a canvas with a plot to show the relation
+    # from each feature in the dataset with the target variables
+    # methods
+    #    _init_
+    #   update
+    #::---------------------------------------------------------
+    send_fig = pyqtSignal(str)
+
+    def __init__(self):
+        super(TargetRelationship, self).__init__()
+        self.Title = "Features vrs Loan Default"
+        self.main_widget = QWidget(self)
+
+        self.setWindowTitle(self.Title)
+        self.setStyleSheet(font_size_window)
+
+        self.fig = Figure()
+        self.ax1 = self.fig.add_subplot(111)
+        self.axes = [self.ax1]
+        self.canvas = FigureCanvas(self.fig)
+
+        self.canvas.setSizePolicy(QSizePolicy.Expanding,
+                                  QSizePolicy.Expanding)
+
+        self.canvas.updateGeometry()
+
+        self.dropdown1 = QComboBox()
+        self.featuresList = important_features.copy()
+        self.dropdown1.addItems(self.featuresList)
+
+        self.dropdown1.currentIndexChanged.connect(self.update)
+        self.label = QLabel("A plot:")
+
+        self.layout = QGridLayout(self.main_widget)
+        self.layout.addWidget(QLabel("Select Features:"))
+        self.layout.addWidget(self.dropdown1)
+        self.layout.addWidget(self.canvas)
+
+        self.setCentralWidget(self.main_widget)
+        self.show()
+        self.update()
+
+    def update(self):
+        self.ax1.clear()
+        cat1 = self.dropdown1.currentText()
+
+        X_1 = df[target]
+        y_1 = df[cat1]
+
+        self.ax1.boxplot([X_1, y_1])
+        vtitle = "Loan Default vrs "+ cat1
+        self.ax1.set_title(vtitle)
+        self.ax1.set_xlabel("Loan Default")
+        self.ax1.set_ylabel(cat1)
+        self.ax1.grid(True)
+
+        self.fig.tight_layout()
+        self.fig.canvas.draw_idle()
+        del cat1
+
+
 class PlotCanvas(FigureCanvas):
     #::----------------------------------------------------------
     # creates a figure on the canvas
@@ -3458,20 +3638,22 @@ class App(QMainWindow):
         # Correlation Plot : Correlation plot using all the dims in the datasets
         #::----------------------------------------
 
-        # EDA1Button = QAction(QIcon('analysis.png'),'Initial Assesment', self)
-        # EDA1Button.setStatusTip('Presents the initial datasets')
-        # EDA1Button.triggered.connect(self.EDA1)
-        # EDAMenu.addAction(EDA1Button)
-        #
-        # EDA2Button = QAction(QIcon('analysis.png'), 'Happiness Final', self)
-        # EDA2Button.setStatusTip('Final Happiness Graph')
-        # EDA2Button.triggered.connect(self.EDA2)
-        # EDAMenu.addAction(EDA2Button)
-        #
+
+
+        EDA1Button = QAction(QIcon('analysis.png'),'Variable Distribution', self)
+        EDA1Button.setStatusTip('Variable distribution against Loan Default')
+        EDA1Button.triggered.connect(self.EDA1)
+        EDAMenu.addAction(EDA1Button)
+
         EDA4Button = QAction(QIcon('analysis.png'), 'Correlation Plot', self)
         EDA4Button.setStatusTip('Features Correlation Plot')
         EDA4Button.triggered.connect(self.EDA4)
         EDAMenu.addAction(EDA4Button)
+
+        EDA5Button = QAction(QIcon('analysis.png'), 'Variable Relationship', self)
+        EDA5Button.setStatusTip('Boxplot of Loan Default')
+        EDA5Button.triggered.connect(self.EDA5)
+        EDAMenu.addAction(EDA5Button)
 
         #::--------------------------------------------------
         # ML Models for prediction
@@ -3500,20 +3682,14 @@ class App(QMainWindow):
         MLModel4Button.setStatusTip('KNN Classifier ')
         MLModel4Button.triggered.connect(self.MLKN)
 
-
-
-
-
         MLModelMenu.addAction(MLModel1Button)
         MLModelMenu.addAction(MLModel2Button)
         MLModelMenu.addAction(MLModel3Button)
         MLModelMenu.addAction(MLModel4Button)
 
-
-
         self.dialogs = list()
 
-    '''
+
     def EDA1(self):
         #::------------------------------------------------------
         # Creates the histogram
@@ -3521,32 +3697,24 @@ class App(QMainWindow):
         # X was populated in the method data_happiness()
         # at the start of the application
         #::------------------------------------------------------
-        dialog = CanvasWindow(self)
-        dialog.m.plot()
-        dialog.m.ax.hist(X, bins=12, facecolor='green', alpha=0.5)
-        dialog.m.ax.set_title('Frequency of Happiness Year 2017')
-        dialog.m.ax.set_xlabel("Level of Happiness")
-        dialog.m.ax.set_ylabel("Number of Countries")
-        dialog.m.ax.grid(True)
-        dialog.m.draw()
+        dialog = TargetDistribution()
         self.dialogs.append(dialog)
         dialog.show()
 
-    def EDA2(self):
-        #::---------------------------------------------------------
-        # This function creates an instance of HappinessGraphs class
-        # This class creates a graph using the features in the dataset
-        # happiness vrs the score of happiness
-        #::---------------------------------------------------------
-        dialog = HappinessGraphs()
-        self.dialogs.append(dialog)
-        dialog.show()
-'''
+
     def EDA4(self):
         #::----------------------------------------------------------
         # This function creates an instance of the CorrelationPlot class
         #::----------------------------------------------------------
         dialog = CorrelationPlot()
+        self.dialogs.append(dialog)
+        dialog.show()
+
+    def EDA5(self):
+        #::----------------------------------------------------------
+        # This function creates an instance of the CorrelationPlot class
+        #::----------------------------------------------------------
+        dialog = TargetRelationship()
         self.dialogs.append(dialog)
         dialog.show()
 
@@ -3626,6 +3794,7 @@ def data_loan():
     global target
     global categorical
     global numerical
+    global important_features
     # df_orig = pd.read_csv(r'lt-vehicle-loan-default-prediction/train.csv')
     df = pd.read_csv(r'lt-vehicle-loan-default-prediction/UItry.csv')
     target = 'loan_default'
@@ -3637,6 +3806,9 @@ def data_loan():
     categorical = df.select_dtypes(['object']).columns
     numerical = df.select_dtypes('int64').columns
     class_names = ['No', 'Yes']
+    important_features = ['ltv', 'asset_cost', 'Age', 'Employment.Type', 'PERFORM_CNS.SCORE','PRI.ACTIVE.ACCTS'\
+                      'PRI.NO.OF.ACCTS', 'PRI.SANCTIONED.AMOUNT', 'DELINQUENT.ACCTS.IN.LAST.SIX.MONTHS', 'CREDIT.HISTORY.LENGTH',\
+                      ]
 
 if __name__ == '__main__':
     #::------------------------------------
