@@ -25,109 +25,6 @@ from sklearn.decomposition import PCA
 import random
 from sklearn.model_selection import train_test_split
 
-# '''
-# train = pd.read_csv("train.csv")
-# test  = pd.read_csv("test.csv") #uploaded to Google Colab directly
-#
-# # Looking at the data headers, these values aren't required
-#
-# #feature to drop here
-# train = train.drop(['UniqueID', 'supplier_id', 'Current_pincode_ID', 'Date.of.Birth', 'DisbursalDate', 'Employee_code_ID'], axis = 1)
-#
-# test = test.drop(['UniqueID', 'supplier_id', 'Current_pincode_ID', 'Date.of.Birth', 'DisbursalDate', 'Employee_code_ID'], axis = 1)
-#
-# print(train.shape)
-# print(test.shape)
-#
-# Y = train.iloc[:, -1] #last column is the the prediction in the training set
-#
-# Y.shape
-#
-# X = train.drop(['loan_default'], axis = 1)
-#
-# X.shape
-#
-# test_X = test.iloc[:,:]
-#
-# X.sample(3) # Checking whether irrelevant rows are dropped or not
-#
-# X['Employment.Type'].fillna('Self employed', inplace = True)
-# test_X['Employment.Type'].fillna('Self employed', inplace = True)
-#
-# X['Employment.Type'].value_counts()
-#
-# X['Employment.Type'] = X['Employment.Type'].replace(('Unemployed', 'Salaried', 'Self employed'), (0, 1, 2))
-# test_X['Employment.Type'] = test_X['Employment.Type'].replace(('Unemployed', 'Salaried', 'Self employed'), (0, 1, 2))
-#
-# X['Employment.Type'].value_counts() #Converted irrelevant strings to numbers for computations while training
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'].value_counts()
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'] = X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('No Bureau History Available',
-#                                      'Not Scored: Sufficient History Not Available','Not Scored: Not Enough Info available on the customer',
-#                                      'Not Scored: No Activity seen on the customer (Inactive)',
-#                                      'Not Scored: No Updates available in last 36 months', 'Not Scored: Only a Guarantor',
-#                                      'Not Scored: More than 50 active Accounts found'),(0, 0, 0, 0, 0, 0, 0))
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'] = X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('L-Very High Risk', 'M-Very High Risk'), (1, 1))
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'] = X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('J-High Risk', 'K-High Risk'), (2, 2))
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'] = X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('H-Medium Risk', 'I-Medium Risk'), (3, 3))
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'] = X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('E-Low Risk', 'F-Low Risk', 'G-Low Risk'), (4, 4, 4))
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'] = X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('A-Very Low Risk', 'B-Very Low Risk',
-#                                       'C-Very Low Risk', 'D-Very Low Risk'), (5, 5, 5, 5))
-#
-# X['PERFORM_CNS.SCORE.DESCRIPTION'].value_counts()
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'].value_counts()
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'] = test_X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('No Bureau History Available',
-#                                      'Not Scored: Sufficient History Not Available','Not Scored: Not Enough Info available on the customer',
-#                                      'Not Scored: No Activity seen on the customer (Inactive)',
-#                                      'Not Scored: No Updates available in last 36 months', 'Not Scored: Only a Guarantor',
-#                                      'Not Scored: More than 50 active Accounts found'),(0, 0, 0, 0, 0, 0, 0))
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'] = test_X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('L-Very High Risk', 'M-Very High Risk'), (1, 1))
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'] = test_X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('J-High Risk', 'K-High Risk'), (2, 2))
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'] = test_X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('H-Medium Risk', 'I-Medium Risk'), (3, 3))
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'] = test_X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('E-Low Risk', 'F-Low Risk', 'G-Low Risk'), (4, 4, 4))
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'] = test_X['PERFORM_CNS.SCORE.DESCRIPTION'].replace(('A-Very Low Risk', 'B-Very Low Risk',
-#                                       'C-Very Low Risk', 'D-Very Low Risk'), (5, 5, 5, 5))
-#
-# test_X['PERFORM_CNS.SCORE.DESCRIPTION'].value_counts()
-#
-# import re
-# def toMonths(str):
-#   cache = []
-#   for k in X[str]:
-#     temp = int(re.split("[yrs mon]+", k)[0]) * 12 + int(re.split("[yrs mon]+", k)[1])
-#     cache.append(temp)
-#   return cache
-#
-# def toMonthstest(str):
-#   cache = []
-#   for k in test_X[str]:
-#     temp = int(re.split("[yrs mon]+", k)[0]) * 12 + int(re.split("[yrs mon]+", k)[1])
-#     cache.append(temp)
-#   return cache
-#
-# X['CREDIT.HISTORY.LENGTH'] = toMonths('CREDIT.HISTORY.LENGTH')
-# X['CREDIT.HISTORY.LENGTH'][:5]
-#
-# X['AVERAGE.ACCT.AGE'] = toMonths('AVERAGE.ACCT.AGE')
-#
-# X['AVERAGE.ACCT.AGE'][:5]
-#
-# test_X['CREDIT.HISTORY.LENGTH'] = toMonthstest('CREDIT.HISTORY.LENGTH')
-# test_X['AVERAGE.ACCT.AGE'] = toMonthstest('AVERAGE.ACCT.AGE')
-# test_X['AVERAGE.ACCT.AGE'][0:5] '''
 
 
 train = pd.read_csv(r"lt-vehicle-loan-default-prediction/final_train.csv") # Change this according to your data location
@@ -167,14 +64,8 @@ train["State_ID"].replace({22:'A',20:'A',10:'A',1:'A',
                            18:'E',8:'E',17:'E',12:'E',
                            2:'F',14:'F',13:'F'},inplace=True)
 
-# train["Age"].replace({23:'[23,29]',24:'[23,29]',25:'[23,29]',26:'[23,29]',27:'[23,29]',28:'[23,29]',29:'[23,29]',
-#                       30:'[30,36]',31:'[30,36]',32:'[30,36]',33:'[30,36]',34:'[30,36]',35:'[30,36]',36:'[30,36]',
-#                       37:'[37,45]',38:'[37,45]',39:'[37,45]',40:'[37,45]',41:'[37,45]',42:'[37,45]',43:'[37,45]',44:'[37,45]',45:'[37,45]',
-#                       46:'[46,57]',47:'[46,57]',48:'[46,57]',49:'[46,57]',50:'[46,57]',51:'[46,57]',52:'[46,57]',53:'[46,57]',54:'[46,57]',55:'[46,57]',56:'[46,57]',57:'[46,57]',
-#                       58:'[58,67]',59:'[58,67]',60:'[58,67]',61:'[58,67]',62:'[58,67]',63:'[58,67]',64:'[58,67]',65:'[58,67]',66:'[58,67]',67:'[58,67]'},inplace=True)
 
 
-#train['PERFORM_CNS.SCORE.DESCRIPTION'].value_counts()
 train.info()
 train=pd.get_dummies(train, columns=["State_ID",
                                       "manufacturer_id",
@@ -188,9 +79,10 @@ train = pd.read_csv(r"lt-vehicle-loan-default-prediction/final_train1.csv") # Ch
 def split_data(inpath, target_name, test_size):
   df = pd.read_csv(inpath)
   y = df[target_name]
-  # x = df1.loc[:,df1.columns!='loan_default']
+
   x = df.drop(target_name, axis=1)
   # set a random seed for the data, so that we could get the same train and test set
+
   random.seed(12345)
   X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=1, stratify=y)
   # With stratify, we make sure to have the same default rate for both df
@@ -200,43 +92,6 @@ def split_data(inpath, target_name, test_size):
 X_train, X_test, y_train, y_test = split_data(r"lt-vehicle-loan-default-prediction/final_train1.csv", 'loan_default', 0.3)
 
 
-# # For Imbalance Classification
-# from imblearn.over_sampling import SMOTE
-#
-# oversample = SMOTE()
-# X_train, y_train = oversample.fit_resample(X_train, y_train.values.ravel())
-
-#print(X_train.shape)
-#print(y_train.shape)
-
-
-# pca = PCA(n_components=7).fit(X)
-# X = pca.fit_transform(X)
-# X = pd.DataFrame(X, columns = ['p1','p2','p3','p4','p5','p6','p7'])
-# test_df = pd.DataFrame(pca.fit_transform(train.iloc[:, -1]), columns = ['p1','p2','p3','p4','p5','p6','p7'])
-# #Plotting the Cumulative Summation of the Explained Variance
-# plt.figure(figsize=(15,5))
-# plt.plot(np.cumsum(pca.explained_variance_ratio_))
-# plt.xlabel('Number of Components')
-# plt.ylabel('Variance (%)') #for each component
-# plt.title('Pulsar Dataset Explained Variance')
-# plt.show()
-
-# import numpy as np
-
-#splitting training data into train and validation set
-# '''X_train, X_valid, Y_train, Y_valid = train_test_split(x_train, y_train, test_size = 0.2, random_state = 0)
-#
-# print(X_train.shape)
-# print(Y_train.shape)
-#
-# print(X_valid.shape)
-# print(Y_valid.shape)'''
-#
-
-
-#### save the data for the feature selection
-### This data will be used at the GUI part
 
 
 #%----------------- STANDARIZATION
@@ -257,20 +112,14 @@ list_rf=selector.support_
 
 X_train.iloc[:,list_rf].info()
 
-#X_valid = scalar.transform(X_valid)
-#test_X = scalar.transform(test_X)
+
 
 
 from sklearn.metrics import roc_auc_score
 
 #%----------------- Decision Tree -----------------
 dt = DecisionTreeClassifier(max_depth=5,min_samples_leaf=0.01,criterion='gini',class_weight='balanced',random_state=123)
-#modelXG.fit(X_train, y_train)
 
-#Y_predXG = modelXG.predict(X_valid)
-#print("Train Accuracy: ", modelXG.score(X_train, y_train))
-#print("Validation Accuracy: ", modelXG.score(X_valid, Y_valid))
-#print("AUROC Score of decision = ", roc_auc_score(Y_valid, Y_predXG))
 
 dt.fit(X_train.iloc[:,list_rf], y_train)
 
@@ -329,15 +178,12 @@ print(result)
 #%----------------- Random Forest -----------------
 from sklearn.ensemble import RandomForestClassifier
 rf = RandomForestClassifier(n_estimators=300,max_depth=10,min_samples_leaf=0.01,class_weight='balanced',random_state=123)
-#modelRF.fit(X_train, y_train)
-#Y_predRF = modelRF.predict(X_valid)
+
 
 # calculate parameters for logistic Model on Training
 rf.fit(X_train.iloc[:,list_rf], y_train)
 
-#print("Train Accuracy: ", modelRF.score(X_train, y_train))
-#print("Validation Accuracy: ", modelRF.score(X_valid, Y_valid))
-#print("AUROC Score of Random Forest = ", roc_auc_score(Y_valid, Y_predRF))
+
 
 
 df_training_pred_rf = pd.DataFrame({'actual':y_train,'predicted': rf.predict(X_train.iloc[:,list_rf]),
@@ -448,10 +294,6 @@ print(auc_score_training)
 print("Testing")
 print(auc_score_testing)
 
-#Y_predAB = modelAB.predict(X_valid)
-#print("Train Accuracy: ", modelAB.score(X_train, y_train))
-#print("Validation Accuracy: ", modelAB.score(X_valid, Y_valid))
-#print("AUROC Score of logistic = ", roc_auc_score(Y_valid, Y_predAB))
 
 #### To sove the numbers
 import pickle
@@ -464,34 +306,22 @@ result=loaded_model.score(X_test.iloc[:,list_rf],y_test)
 print(result)
 
 #%----------------- Gradient Boosting -----------------
+
 from sklearn.ensemble import GradientBoostingClassifier
 modelGB = GradientBoostingClassifier()
-modelGB.fit(X_train, y_train)
+modelGB.fit(X_train.iloc[:,list_rf], y_train)
+Y_predGB = modelGB.predict(X_test.iloc[:,list_rf])
+print("Training Accuracy: ", modelGB.score(X_train.iloc[:,list_rf], y_train))
+print('Testing Accuarcy: ', modelGB.score(X_test.iloc[:,list_rf], y_test))
+print("AUROC Score of Gradient Boosting = ", roc_auc_score(y_test, Y_predGB))
 
-#Y_predGB = modelGB.predict(X_valid)
+#### To sove the file
+import pickle
+filename = 'gb_finalized_model.sav'
+pickle.dump(modelGB, open(filename, 'wb'))
 
-print("Training Accuracy: ", modelGB.score(X_train, y_train))
-#print('Testing Accuarcy: ', modelGB.score(X_valid, Y_valid))
-print("AUROC Score of Gradient Boosting = ", roc_auc_score(Y_valid, Y_predGB))
+# load the model from disk
+loaded_model = pickle.load(open(filename, 'rb'))
+result=loaded_model.score(X_test.iloc[:,list_rf],y_test)
+print(result)
 
-
-test_Y_RF = modelRF.predict(test_X)
-test_Y_XG = modelXG.predict(test_X)
-test_Y_AB = modelAB.predict(test_X)
-test_Y_GB = modelGB.predict(test_X)
-test_Y_pred = []
-
-for i in range(len(test_Y_RF)):
-  k = 0.25 * test_Y_RF[i] + 0.175 * test_Y_GB[i] + 0.125 * test_Y_XG[i] + 0.1 * test_Y_AB[i] # weighted averaging
-  test_Y_pred.append(k)
-
-# 0.35 * test_Y_LGBM[i] +
-# output = pd.read_csv('sample_submission_24jSKY6.csv')
-# print(output.head())
-# test = pd.read_csv('test_bqCt9Pv.csv')
-# uid = test['UniqueID']
-# output = pd.DataFrame({'UniqueID': uid, 'loan_default': test_Y_pred})
-# output.head()
-# output.to_csv('final.csv',index=False)
-# from google.colab import files
-# files.download("final.csv")
