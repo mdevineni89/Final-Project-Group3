@@ -61,7 +61,7 @@ import webbrowser
 import warnings
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
-
+from Preprocessing import PreProcessing
 import random
 import seaborn as sns
 
@@ -2985,7 +2985,7 @@ class TargetDistribution(QMainWindow):
         self.canvas.updateGeometry()
 
         self.dropdown1 = QComboBox()
-        self.featuresList = important_features.copy()
+        self.featuresList = numerical.copy()
         self.dropdown1.addItems(self.featuresList)
 
         self.dropdown1.currentIndexChanged.connect(self.update)
@@ -3051,10 +3051,10 @@ class TargetDistribution(QMainWindow):
         self.ax.clear()
         cat1 = self.dropdown1.currentText()
         if (self.set_Filter == 1 or self.set_Filter == 0):
-            self.filtered_data = df.copy()
+            self.filtered_data = df_orig.copy()
             self.filtered_data = self.filtered_data[self.filtered_data["loan_default"] == self.set_Filter]
         else:
-            self.filtered_data = df.copy()
+            self.filtered_data = df_orig.copy()
 
         self.ax.hist(self.filtered_data[cat1], bins=50, facecolor='blue', alpha=0.5)
         self.ax.set_title(cat1)
@@ -3066,6 +3066,92 @@ class TargetDistribution(QMainWindow):
         del cat1
         del self.filtered_data
 
+
+class TargetCount(QMainWindow):
+    #::---------------------------------------------------------
+    # This class crates a canvas with a plot to show the distribution
+    # from each feature in the dataset with the target variables
+    # methods
+    #    _init_
+    #   update
+    #::---------------------------------------------------------
+    send_fig = pyqtSignal(str)
+
+    def __init__(self):
+        #::--------------------------------------------------------
+        # Crate a canvas with the layout to draw a dotplot
+        # The layout sets all the elements and manage the changes
+        # made on the canvas
+        #::--------------------------------------------------------
+        super(TargetCount, self).__init__()
+        self.Title = "EDA: Variable Distribution"
+        self.main_widget = QWidget(self)
+
+        self.setWindowTitle(self.Title)
+        self.setStyleSheet(font_size_window)
+
+        self.fig = Figure()
+        self.ax = self.fig.add_subplot(111)
+        self.axes = [self.ax]
+        self.canvas = FigureCanvas(self.fig)
+
+        self.canvas.setSizePolicy(QSizePolicy.Expanding,
+                                  QSizePolicy.Expanding)
+
+        self.canvas.updateGeometry()
+
+        self.dropdown1 = QComboBox()
+        self.featuresList = categorical.copy()
+        self.dropdown1.addItems(self.featuresList)
+
+        self.dropdown1.currentIndexChanged.connect(self.update)
+        self.label = QLabel("A plot:")
+
+        self.layout = QGridLayout(self.main_widget)
+        self.layout.addWidget(QLabel("Select Features:"))
+        self.layout.addWidget(self.dropdown1)
+
+        self.layout.addWidget(self.canvas)
+
+        self.setCentralWidget(self.main_widget)
+        self.resize(1200, 700)
+        self.show()
+
+    # def get_bar_dict(self, cat1, level_list):
+    #     count_yes = []
+    #     count_no = []
+    #     for level in level_list:
+    #         count_no.append(len(df_orig[(df_orig[cat1] == level) & (df_orig[target] == 0)]))
+    #         count_yes.append(len(df_orig[(df_orig[cat1] == level) & (df_orig[target] == 1)]))
+    #     return count_no, count_yes
+
+    def update(self):
+        #::--------------------------------------------------------
+        # This method executes each time a change is made on the canvas
+        # containing the elements of the graph
+        # The purpose of the method es to draw a dot graph using the
+        # score of happiness and the feature chosen the canvas
+        #::--------------------------------------------------------
+        colors = ["b", "r", "g", "y", "k", "c"]
+        self.ax.clear()
+        cat1 = self.dropdown1.currentText()
+        df_pick = df_orig[cat1]
+        level_list = list(df_pick.unique())
+        count_yes = []
+        count_no = []
+        for level in level_list:
+            count_no.append(len(df_orig[(df_orig[cat1] == level) & (df_orig[target] == 0)]))
+            count_yes.append(len(df_orig[(df_orig[cat1] == level) & (df_orig[target] == 1)]))
+        self.ax.bar(level_list, count_no, align='edge', width=2, label='No')
+        self.ax.bar(level_list, count_yes, align='edge', width=2, label='Yes')
+        self.ax.legend()
+        self.ax.set_title(cat1)
+        self.ax.set_xlabel(cat1)
+        self.ax.set_ylabel("Count")
+        self.ax.grid(True)
+        self.fig.tight_layout()
+        self.fig.canvas.draw_idle()
+        del cat1
 
 class CorrelationPlot(QMainWindow):
     #;:-----------------------------------------------------------------------
@@ -3468,7 +3554,6 @@ class CorrelationPlot(QMainWindow):
             else:
                 self.list_corr_features = pd.concat([self.list_corr_features, df[features_list[35]]], axis=1)
 
-
         vsticks = ["dummy"]
         vsticks1 = list(self.list_corr_features.columns)
         vsticks1 = vsticks + vsticks1
@@ -3492,7 +3577,7 @@ class TargetRelationship(QMainWindow):
 
     def __init__(self):
         super(TargetRelationship, self).__init__()
-        self.Title = "Features vrs Loan Default"
+        self.Title = "Boxplot of Categorical vs Numerical Variables"
         self.main_widget = QWidget(self)
 
         self.setWindowTitle(self.Title)
@@ -3509,33 +3594,60 @@ class TargetRelationship(QMainWindow):
         self.canvas.updateGeometry()
 
         self.dropdown1 = QComboBox()
-        self.featuresList = important_features.copy()
+        self.featuresList = numerical.copy()
         self.dropdown1.addItems(self.featuresList)
 
         self.dropdown1.currentIndexChanged.connect(self.update)
         self.label = QLabel("A plot:")
 
+        self.dropdown2 = QComboBox()
+        self.featuresList = categorical.copy()
+        self.dropdown2.addItems(self.featuresList)
+
+        self.dropdown2.currentIndexChanged.connect(self.update)
+        self.label = QLabel("A plot:")
+
         self.layout = QGridLayout(self.main_widget)
-        self.layout.addWidget(QLabel("Select Features:"))
-        self.layout.addWidget(self.dropdown1)
-        self.layout.addWidget(self.canvas)
+        self.layout.addWidget(QLabel("Select a Numerical Features:"), 0, 0, 1, 1)
+        self.layout.addWidget(self.dropdown1, 1, 0, 1, 1)
+
+        self.layout.addWidget(QLabel("Select a Categorical Features:"), 0, 1, 1, 1)
+        self.layout.addWidget(self.dropdown2, 1, 1, 1, 1)
+
+        self.groupBox1 = QGroupBox('Distribution')
+        self.groupBox1Layout = QVBoxLayout()
+        self.groupBox1.setLayout(self.groupBox1Layout)
+        self.groupBox1Layout.addWidget(self.canvas)
+        self.layout.addWidget(self.groupBox1, 3, 0, 5, 5)
 
         self.setCentralWidget(self.main_widget)
+        self.resize(1500, 1200)
         self.show()
         self.update()
 
     def update(self):
         self.ax1.clear()
         cat1 = self.dropdown1.currentText()
+        cat2 = self.dropdown2.currentText()
 
-        X_1 = df[target]
-        y_1 = df[cat1]
-
-        self.ax1.boxplot([X_1, y_1])
-        vtitle = "Loan Default vrs "+ cat1
+        df2 = df_orig[[cat1, cat2]]
+        my_pt = pd.pivot_table(df2, index=df2.index, columns=cat2, values=cat1, aggfunc=np.sum)
+        my_pt = pd.DataFrame(my_pt.to_records())
+        my_pt = my_pt.drop(columns=['index'])
+        my_np = my_pt.values
+        mask = ~np.isnan(my_np)
+        box_result = [d[m] for d, m in zip(my_np.T, mask.T)]
+        class_names_x = my_pt.columns.values.tolist()
+        self.ax1.boxplot(box_result)
+        # X_1 = df_orig[cat2]
+        # y_1 = df_orig[cat1]
+        # for j, value2 in enumerate(X_1.unique()):
+        #     df_orig.loc[df_orig[cat2] == value2].plot(kind="box", x=cat2, y=cat1, ax=self.ax1,label=value2)
+        vtitle = cat2 + "vrs "+ cat1
         self.ax1.set_title(vtitle)
-        self.ax1.set_xlabel("Loan Default")
+        self.ax1.set_xlabel(cat2)
         self.ax1.set_ylabel(cat1)
+        self.ax1.set_xticklabels(class_names_x)
         self.ax1.grid(True)
 
         self.fig.tight_layout()
@@ -3645,6 +3757,13 @@ class App(QMainWindow):
         EDA1Button.triggered.connect(self.EDA1)
         EDAMenu.addAction(EDA1Button)
 
+
+        EDA3Button = QAction(QIcon('analysis.png'), 'Variable Counts', self)
+        EDA3Button.setStatusTip('Categorical Variable Counts')
+        EDA3Button.triggered.connect(self.EDA3)
+        EDAMenu.addAction(EDA3Button)
+
+
         EDA4Button = QAction(QIcon('analysis.png'), 'Correlation Plot', self)
         EDA4Button.setStatusTip('Features Correlation Plot')
         EDA4Button.triggered.connect(self.EDA4)
@@ -3701,6 +3820,16 @@ class App(QMainWindow):
         self.dialogs.append(dialog)
         dialog.show()
 
+    def EDA3(self):
+        #::------------------------------------------------------
+        # Creates the histogram
+        # The X variable contains the happiness.score
+        # X was populated in the method data_happiness()
+        # at the start of the application
+        #::------------------------------------------------------
+        dialog = TargetCount()
+        self.dialogs.append(dialog)
+        dialog.show()
 
     def EDA4(self):
         #::----------------------------------------------------------
@@ -3756,14 +3885,14 @@ class App(QMainWindow):
           self.dialogs.append(dialog)
           dialog.show()
 
-    def MLSV(self):
-    #     #::-------------------------------------------------------------
-    #     # This function creates an instance of the Random Forest Classifier Algorithm
-    #     # using the happiness dataset
-    #     #::-------------------------------------------------------------
-          dialog = SVM()
-          self.dialogs.append(dialog)
-          dialog.show()
+    # def MLSV(self):
+    # #     #::-------------------------------------------------------------
+    # #     # This function creates an instance of the Random Forest Classifier Algorithm
+    # #     # using the happiness dataset
+    # #     #::-------------------------------------------------------------
+    #       dialog = SVM()
+    #       self.dialogs.append(dialog)
+    #       dialog.show()
 
 
 
@@ -3795,7 +3924,9 @@ def data_loan():
     global categorical
     global numerical
     global important_features
-    # df_orig = pd.read_csv(r'lt-vehicle-loan-default-prediction/train.csv')
+    global df_orig
+    global tips
+    df_orig = pd.read_csv(r'lt-vehicle-loan-default-prediction/train.csv')
     df = pd.read_csv(r'lt-vehicle-loan-default-prediction/UItry.csv')
     target = 'loan_default'
     X= df.drop([target], axis=1)
@@ -3803,12 +3934,22 @@ def data_loan():
 
     columns = X.columns.tolist()
     features_list = columns[1:].copy()
-    categorical = df.select_dtypes(['object']).columns
-    numerical = df.select_dtypes('int64').columns
     class_names = ['No', 'Yes']
-    important_features = ['ltv', 'asset_cost', 'Age', 'Employment.Type', 'PERFORM_CNS.SCORE','PRI.ACTIVE.ACCTS'\
+    important_features = ['disbursed_amount', 'ltv', 'asset_cost', 'Age', 'Employment.Type', 'PERFORM_CNS.SCORE','PRI.ACTIVE.ACCTS'\
                       'PRI.NO.OF.ACCTS', 'PRI.SANCTIONED.AMOUNT', 'DELINQUENT.ACCTS.IN.LAST.SIX.MONTHS', 'CREDIT.HISTORY.LENGTH',\
                       ]
+    categorical = ['Employment.Type', 'PERFORM_CNS.SCORE.DESCRIPTION', 'AVERAGE.ACCT.AGE', 'AVERAGE.ACCT.AGE', \
+                   'Aadhar_flag', 'PAN_flag', 'VoterID_flag', 'Driving_flag', 'Passport_flag','loan_default']
+    numerical = ['disbursed_amount', 'asset_cost','PERFORM_CNS.SCORE', 'PRI.NO.OF.ACCTS', 'PRI.ACTIVE.ACCTS', 'PRI.OVERDUE.ACCTS', \
+                 'PRI.CURRENT.BALANCE', 'PRI.SANCTIONED.AMOUNT', 'PRI.DISBURSED.AMOUNT', 'SEC.NO.OF.ACCTS', 'SEC.ACTIVE.ACCTS', \
+                 'SEC.OVERDUE.ACCTS', 'SEC.CURRENT.BALANCE','SEC.SANCTIONED.AMOUNT', 'SEC.DISBURSED.AMOUNT', 'PRIMARY.INSTAL.AMT', \
+                 'SEC.INSTAL.AMT', 'NEW.ACCTS.IN.LAST.SIX.MONTHS', 'DELINQUENT.ACCTS.IN.LAST.SIX.MONTHS','NO.OF_INQUIRIES'\
+                 'Disbursal_months', 'Age']
+
+    # PreProcessing(df_orig).convert_cate_to_num(categorical)
+    # PreProcessing(df_orig).format_date(['Date.of.Birth', 'DisbursalDate'])
+    # PreProcessing(df_orig).format_age_disbursal()
+    tips = df_orig
 
 if __name__ == '__main__':
     #::------------------------------------
