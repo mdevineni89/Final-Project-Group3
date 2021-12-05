@@ -681,7 +681,7 @@ class DecisionTree(QMainWindow):
         Executes the graphviz to create a tree view of the information
          then it presents the graphic in a pdf formt using webbrowser
         :return:None
-        
+        '''
 
         webbrowser.open_new(r'decision_tree_entropy.pdf')
 
