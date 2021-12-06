@@ -1,4 +1,4 @@
-# Vehicle Loan Prediction
+# Final Project Group3
  The files include:
  * EDA
    Performed expolatory data analysis but plotting few graphs and finding the correlation among features
