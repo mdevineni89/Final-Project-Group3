@@ -1,5 +1,8 @@
 # Final Project Group3
  The files include:
+ * Data Download 
+   consists of code to download the file containing dataset
+   
  * EDA
    Performed expolatory data analysis but plotting few graphs and finding the correlation among features
   
