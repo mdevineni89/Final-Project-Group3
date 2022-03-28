@@ -1,4 +1,4 @@
-# Final Project Group3
+# Vehicle Loan Prediction
 2021DATAS3103-Data Mining Final Project Group 3
 
 ## Dataset Information
